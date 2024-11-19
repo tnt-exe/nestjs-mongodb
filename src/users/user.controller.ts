@@ -10,50 +10,46 @@ import {
   Post,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, CreateUserSettingsDto } from './dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import mongoose from 'mongoose';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiConsumes,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiProduces,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @Controller('users')
+@ApiConsumes('application/json')
+@ApiProduces('application/json')
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Post()
-  @ApiBody({
-    type: CreateUserDto,
-    description: 'hmm body ig',
-    examples: {
-      body: {
-        value: {
-          userName: 'nameee',
-          displayName: 'asadas',
-          setting: {
-            receiveEmail: true,
-            receiveNotification: true,
-            receiveSMS: true,
-          } as CreateUserSettingsDto,
-        } as CreateUserDto,
-      },
-    },
-  })
+  @ApiOperation({ summary: 'Create a new user' })
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({ status: 201, type: CreateUserDto })
   async createUser(@Body() createUserDto: CreateUserDto) {
     return await this.userService.createUser(createUserDto);
   }
 
   @Get()
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Get all users' })
+  @ApiResponse({ status: 200, type: [CreateUserDto] })
+  @ApiNotFoundResponse({ description: 'No users found' })
   async getUsers() {
     return await this.userService.getUsers();
   }
 
   @Get(':id')
-  @ApiResponse({ status: 200 })
-  @ApiResponse({
-    status: 404,
-    description: 'if not found',
-    example: new NotFoundException(),
-  })
+  @ApiOperation({ summary: 'Get user by id' })
+  @ApiResponse({ status: 200, type: CreateUserDto })
+  @ApiBadRequestResponse({ description: 'id invalid' })
+  @ApiNotFoundResponse({ description: 'if not found' })
   async getUserById(@Param('id') id: string) {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) throw new BadRequestException('id invalid');
@@ -63,6 +59,10 @@ export class UserController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update user by id' })
+  @ApiBody({ type: UpdateUserDto })
+  @ApiResponse({ status: 200, type: UpdateUserDto })
+  @ApiNotFoundResponse({ description: 'if not found' })
   async updateUser(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -73,6 +73,9 @@ export class UserController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete user by id' })
+  @ApiResponse({ status: 200 })
+  @ApiNotFoundResponse({ description: 'if not found' })
   async deleteUser(@Param('id') id: string) {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) throw new BadRequestException('id invalid');
