@@ -13,7 +13,7 @@ import { UserService } from './user.service';
 import { CreateUserDto, CreateUserSettingsDto } from './dto/create-user.dto';
 import mongoose from 'mongoose';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBody, ApiResponse } from '@nestjs/swagger';
 
 @Controller('users')
 export class UserController {
@@ -42,11 +42,18 @@ export class UserController {
   }
 
   @Get()
+  @ApiResponse({ status: 200 })
   async getUsers() {
     return await this.userService.getUsers();
   }
 
   @Get(':id')
+  @ApiResponse({ status: 200 })
+  @ApiResponse({
+    status: 404,
+    description: 'if not found',
+    example: new NotFoundException(),
+  })
   async getUserById(@Param('id') id: string) {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) throw new BadRequestException('id invalid');

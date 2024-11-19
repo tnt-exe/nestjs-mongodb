@@ -28,7 +28,7 @@ export class PostsService {
     return savedPost;
   }
 
-  findPostById(id: string) {
+  findPostById(id: string): Promise<Post> {
     return this.postModel.findById(id);
   }
 }
