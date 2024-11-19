@@ -32,7 +32,7 @@ export class UserService {
   }
 
   async getUsers() {
-    return await this.userModel.find().populate('settings');
+    return await this.userModel.find().populate(['settings', 'posts']);
   }
 
   async getUserById(id: string) {
