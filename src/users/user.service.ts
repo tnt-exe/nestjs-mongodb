@@ -48,4 +48,8 @@ export class UserService {
   async deleteUser(id: string) {
     return await this.userModel.findByIdAndDelete(id);
   }
+
+  async getUserByName(name: string) {
+    return await this.userModel.findOne({ userName: name });
+  }
 }
