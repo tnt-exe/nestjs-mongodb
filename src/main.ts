@@ -16,8 +16,10 @@ async function bootstrap() {
       type: 'http',
       scheme: 'bearer',
       description: 'Enter your token',
-      bearerFormat: 'JWT',
-      name: 'auth jwt',
+    })
+    .addApiKey({
+      type: 'apiKey',
+      name: 'api_key',
     })
     .build();
 
